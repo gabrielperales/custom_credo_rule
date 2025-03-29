@@ -1,21 +1,6 @@
-# CustomCredoCheck
+# How to create a custom Credo check
 
-**TODO: Add description**
+This repository is part of a blog post on how to create a custom Credo check.
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `custom_credo_check` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:custom_credo_check, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/custom_credo_check>.
+You can find the blog post [here](https://gabriel.perales.me/blog/making-a-custom-credo-rule).
 
