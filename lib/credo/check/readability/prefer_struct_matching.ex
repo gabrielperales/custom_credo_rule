@@ -1,23 +1,35 @@
 defmodule Credo.Check.Readability.PreferStructMatching do
   @moduledoc """
-    Checks all lines for a given Regex.
-
-    This is fun!
+  It will analyze your Elixir codebase, and if it parameters of functions patterm matched by maps with atoms,
+  the parameter must be a struct.
   """
 
-  @explanation [
-    check: @moduledoc,
-    params: [
-      regex: "All lines matching this Regex will yield an issue."
-    ]
-  ]
-  @default_params [
-    # our check will find this line.
-    regex: ~r/Creeeedo/
-  ]
+  use Credo.Check,
+    base_priority: :normal,
+    category: :readability,
+    param_defaults: [],
+    explanations: [
+      check: """
+      If a function is pattern matching a parameter by a map with atoms, the parameter may be a struct.
+      We should try to use struct pattern matching instead of map pattern matching if possible.
 
-  # you can configure the basics of your check via the `use Credo.Check` call
-  use Credo.Check, base_priority: :high, category: :custom, exit_status: 0
+      # not preferred
+      def get_role(%{role: role}) do
+        role
+      end
+
+      # preferred
+      def get_role(%User{role: role}) do
+        role
+      end
+
+      # preferred
+      def get_role(%User{} = user) do
+        user.role
+      end
+      """,
+      params: []
+    ]
 
   @doc false
   @impl true

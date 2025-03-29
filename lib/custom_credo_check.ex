@@ -12,7 +12,7 @@ defmodule CustomCredoCheck do
       :world
 
   """
-  def hello do
+  def test(%{hello: "world"}) do
     :world
   end
 end
