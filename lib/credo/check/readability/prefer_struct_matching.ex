@@ -8,11 +8,12 @@ defmodule Credo.Check.Readability.PreferStructMatching do
   @explanation [
     check: @moduledoc,
     params: [
-      regex: "All lines matching this Regex will yield an issue.",
+      regex: "All lines matching this Regex will yield an issue."
     ]
   ]
   @default_params [
-    regex: ~r/Creeeedo/, # our check will find this line.
+    # our check will find this line.
+    regex: ~r/Creeeedo/
   ]
 
   # you can configure the basics of your check via the `use Credo.Check` call
@@ -39,9 +40,11 @@ defmodule Credo.Check.Readability.PreferStructMatching do
 
   defp process_line({line_no, line}, issues, line_regex, issue_meta) do
     case Regex.run(line_regex, line) do
-      nil -> issues
+      nil ->
+        issues
+
       matches ->
-        trigger = matches |> List.last
+        trigger = matches |> List.last()
         new_issue = issue_for(issue_meta, line_no, trigger)
         [new_issue] ++ issues
     end
@@ -50,9 +53,10 @@ defmodule Credo.Check.Readability.PreferStructMatching do
   defp issue_for(issue_meta, line_no, trigger) do
     # format_issue/2 is a function provided by Credo.Check to help us format the
     # found issue
-    format_issue issue_meta,
+    format_issue(issue_meta,
       message: "OMG! This line matches our Regexp in @default_params!",
       line_no: line_no,
       trigger: trigger
+    )
   end
 end
