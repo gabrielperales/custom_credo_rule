@@ -22,39 +22,36 @@ defmodule Credo.Check.Readability.PreferStructMatching do
   @doc false
   @impl true
   def run(%SourceFile{} = source_file, params) do
-    lines = SourceFile.lines(source_file)
-
-    # IssueMeta helps us pass down both the source_file and params of a check
-    # run to the lower levels where issues are created, formatted and returned
     issue_meta = IssueMeta.for(source_file, params)
 
-    # we use the `params` parameter and the `Params` module to extract a
-    # configuration parameter from `.credo.exs` while also providing a
-    # default value
-    line_regex = params |> Params.get(:regex, __MODULE__)
-
-    # Finally, we can run our custom made analysis.
-    # In this example, we look for lines in source code matching our regex:
-    Enum.reduce(lines, [], &process_line(&1, &2, line_regex, issue_meta))
+    Credo.Code.prewalk(source_file, &traverse(&1, &2, issue_meta))
   end
 
-  defp process_line({line_no, line}, issues, line_regex, issue_meta) do
-    case Regex.run(line_regex, line) do
-      nil ->
-        issues
+  defp traverse({:def, meta, [{_fn_name, _meta, fn_args} = ast, _fn_body]}, issues, issue_meta) do
+    new_issues =
+      fn_args
+      |> Enum.flat_map(fn arg -> check_arg_pattern(arg, meta, issue_meta) end)
 
-      matches ->
-        trigger = matches |> List.last()
-        new_issue = issue_for(issue_meta, line_no, trigger)
-        [new_issue] ++ issues
+    {ast, issues ++ new_issues}
+  end
+
+  defp traverse(ast, issues, _issue_meta), do: {ast, issues}
+
+  defp check_arg_pattern({:%{}, _, fields} = _arg, meta, issue_meta) do
+    if Enum.any?(fields, fn {key, _value} -> is_atom(key) end) do
+      [issue_for(issue_meta, meta[:line], "direct map pattern with atom keys")]
+    else
+      []
     end
   end
+
+  defp check_arg_pattern(_, _, _), do: []
 
   defp issue_for(issue_meta, line_no, trigger) do
     # format_issue/2 is a function provided by Credo.Check to help us format the
     # found issue
     format_issue(issue_meta,
-      message: "OMG! This line matches our Regexp in @default_params!",
+      message: "Pattern match by struct instead of by map if possible",
       line_no: line_no,
       trigger: trigger
     )
