@@ -14,5 +14,16 @@ defmodule Credo.Check.Readability.PreferStructMatchingTest do
       |> run_check(PreferStructMatching)
       |> assert_issue()
     end
+
+    test "it should not report an issue when pattern matching by a struct with atom keys" do
+      """
+        def get_role(%User{role: role}) do
+          role
+        end
+      """
+      |> to_source_file()
+      |> run_check(PreferStructMatching)
+      |> refute_issues()
+    end
   end
 end
